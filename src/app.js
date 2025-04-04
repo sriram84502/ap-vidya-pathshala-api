@@ -12,9 +12,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve Swagger UI static files
-app.use('/api-docs', express.static(path.join(__dirname, '../node_modules/swagger-ui-express/static')));
-
 // MongoDB connection
 let cachedDb = null;
 const connectToDatabase = async () => {
@@ -37,17 +34,20 @@ const connectToDatabase = async () => {
     }
 };
 
+// Database connection middleware
+app.use(async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Swagger documentation
 try {
     const swaggerDocument = require('./swagger.json');
-    const swaggerUiOptions = {
-        customCss: '.swagger-ui .topbar { display: none }',
-        customSiteTitle: "AP Vidya Pathshala API Documentation",
-        swaggerOptions: {
-            persistAuthorization: true
-        }
-    };
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerUiOptions));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (error) {
     console.warn('Swagger documentation not available:', error.message);
     app.get('/api-docs', (req, res) => {
@@ -58,25 +58,7 @@ try {
     });
 }
 
-// Health check endpoint
-app.get('/api/health', async (req, res) => {
-    try {
-        const dbConnection = await connectToDatabase();
-        res.status(200).json({ 
-            status: 'OK', 
-            message: 'API is running',
-            mongodb: dbConnection.connection.readyState === 1 ? 'Connected' : 'Disconnected'
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            status: 'Error', 
-            message: 'Database connection failed',
-            error: error.message
-        });
-    }
-});
-
-// Handle root route
+// Root route
 app.get('/', (req, res) => {
     res.json({
         message: 'AP Vidya Pathshala API',
@@ -99,13 +81,21 @@ app.get('/', (req, res) => {
     });
 });
 
-// Database connection middleware
-app.use(async (req, res, next) => {
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
     try {
-        await connectToDatabase();
-        next();
+        const dbConnection = await connectToDatabase();
+        res.status(200).json({ 
+            status: 'OK', 
+            message: 'API is running',
+            mongodb: dbConnection.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+        });
     } catch (error) {
-        next(error);
+        res.status(500).json({ 
+            status: 'Error', 
+            message: 'Database connection failed',
+            error: error.message
+        });
     }
 });
 
@@ -119,9 +109,9 @@ app.use('/api/syllabus', syllabusRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
         message: 'Something went wrong!', 
-        error: err.message 
+        error: err.message
     });
 });
 
@@ -133,13 +123,11 @@ app.use((req, res) => {
     });
 });
 
-// Start server in development
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 5001;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
-    });
-}
+// Start server
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
+});
 
 module.exports = app; 
