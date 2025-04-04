@@ -383,9 +383,30 @@
           "topics": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Variables and Constants"
+                },
+                "presentation_link": {
+                  "type": "string",
+                  "example": "https://www.canva.com/design/abc123/variables-and-constants",
+                  "pattern": "^https://www\\.canva\\.com/.*$"
+                }
+              }
             },
-            "example": ["Variables", "Constants", "Expressions"]
+            "example": [
+              {
+                "name": "Variables and Constants",
+                "presentation_link": "https://www.canva.com/design/abc123/variables-and-constants"
+              },
+              {
+                "name": "Algebraic Expressions",
+                "presentation_link": "https://www.canva.com/design/def456/algebraic-expressions"
+              }
+            ]
           },
           "learning_objectives": {
             "type": "array",

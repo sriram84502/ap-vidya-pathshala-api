@@ -27,15 +27,31 @@ const syllabusSchema = new mongoose.Schema({
         trim: true
     },
     topics: [{
-        type: String,
-        required: true,
-        trim: true
+        name: {
+            type: String,
+            required: true
+        },
+        presentation_link: {
+            type: String,
+            required: false,
+            validate: {
+                validator: function(v) {
+                    return !v || v.startsWith('https://www.canva.com/');
+                },
+                message: 'Presentation link must be a valid Canva URL'
+            }
+        }
     }],
-    learning_objectives: [{
-        type: String,
+    learning_objectives: {
+        type: [String],
         required: true,
-        trim: true
-    }],
+        validate: {
+            validator: function(v) {
+                return Array.isArray(v) && v.length > 0;
+            },
+            message: 'At least one learning objective is required'
+        }
+    },
     curriculum_type: {
         type: String,
         required: true,
