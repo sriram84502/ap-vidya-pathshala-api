@@ -1,28 +1,28 @@
 # AP Vidya Pathshala API
 
-A comprehensive digital learning platform API for students following the Andhra Pradesh State Government curriculum from 6th to 10th standard, with CBSE curriculum support.
+A digital learning platform API for AP Vidya Pathshala, built with Node.js, Express, and MongoDB.
 
 ## Features
 
-- Curriculum management (AP and CBSE)
-- Grade-specific content (6th to 10th standard)
-- Semester-wise organization
-- Subject-wise chapter management
-- Learning objectives tracking
-- Topic-wise content organization
+- Role-based authentication (Student, Teacher, Headmaster, Admin)
+- JWT-based authentication
+- MongoDB integration
+- Swagger API documentation
+- Error handling middleware
+- Secure password hashing
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- MongoDB (v4.4 or higher)
+- MongoDB
 - npm or yarn
 
-## Setup
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd ap-vidya-pathshala
+git clone https://github.com/sriram84502/ap-vidya-pathshala-api.git
+cd ap-vidya-pathshala-api
 ```
 
 2. Install dependencies:
@@ -30,84 +30,93 @@ cd ap-vidya-pathshala
 npm install
 ```
 
-3. Configure environment variables:
-   - Copy `.env.example` to `.env`
-   - Update the values in `.env` file
-
-4. Start MongoDB:
-```bash
-mongod
+3. Create a `.env` file in the root directory with the following variables:
+```
+JWT_SECRET=your_jwt_secret_key
+MONGODB_URI=your_mongodb_connection_string
+PORT=5001
 ```
 
-5. Start the server:
+4. Start the server:
 ```bash
-# Development mode
 npm run dev
-
-# Production mode
-npm start
 ```
-
-The server will start at http://localhost:5001
 
 ## API Documentation
 
-Swagger documentation is available at http://localhost:5001/api-docs
+The API documentation is available at `http://localhost:5001/api-docs` when the server is running.
 
-### Available Endpoints
+### Authentication Endpoints
 
-#### Syllabus Management
-- GET /api/syllabus - Get all syllabus entries
-- GET /api/syllabus/grade/:grade - Get syllabus by grade
-- GET /api/syllabus/grade/:grade/semester/:semester - Get syllabus by grade and semester
-- POST /api/syllabus - Add new syllabus chapter
-- PUT /api/syllabus/:id - Update syllabus chapter
-- DELETE /api/syllabus/:id - Delete syllabus chapter
-
-## Example API Usage
-
-### Adding a new syllabus chapter
-```bash
-curl -X POST http://localhost:5001/api/syllabus \
-  -H "Content-Type: application/json" \
-  -d '{
-    "grade": "6",
-    "semester": "1",
-    "chapter_number": 1,
-    "chapter_name": "Introduction to Algebra",
-    "subject": "Mathematics",
-    "topics": ["Variables", "Constants", "Expressions"],
-    "learning_objectives": [
-      "Understand basic algebraic concepts",
-      "Solve simple equations"
-    ],
-    "curriculum_type": "AP"
-  }'
-```
-
-## Database Schema
-
-### Syllabus Collection
+#### Student Login
+- **POST** `/api/login/student`
+- Request body:
 ```json
 {
-  "_id": ObjectId,
-  "grade": string,          // "6" to "10"
-  "semester": string,       // "1" or "2"
-  "chapter_number": number,
-  "chapter_name": string,
-  "subject": string,
-  "topics": string[],
-  "learning_objectives": string[],
-  "curriculum_type": string, // "AP" or "CBSE"
-  "createdAt": Date,
-  "updatedAt": Date
+  "username": "student001",
+  "password": "yourpassword"
 }
+```
+
+#### Teacher Login
+- **POST** `/api/login/teacher`
+- Request body:
+```json
+{
+  "username": "teacher001",
+  "password": "yourpassword"
+}
+```
+
+#### Headmaster Login
+- **POST** `/api/login/headmaster`
+- Request body:
+```json
+{
+  "username": "hm001",
+  "password": "yourpassword"
+}
+```
+
+#### Admin Login
+- **POST** `/api/login/admin`
+- Request body:
+```json
+{
+  "username": "admin001",
+  "password": "yourpassword"
+}
+```
+
+## Project Structure
+
+```
+ap-vidya-pathshala/
+├── src/
+│   ├── controllers/
+│   │   └── auth.controller.js
+│   ├── middleware/
+│   │   └── auth.middleware.js
+│   ├── models/
+│   │   └── user.model.js
+│   ├── routes/
+│   │   └── auth.routes.js
+│   ├── app.js
+│   └── swagger.json
+├── .env
+├── .gitignore
+├── package.json
+└── README.md
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request 
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 
