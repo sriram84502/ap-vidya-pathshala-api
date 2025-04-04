@@ -12,6 +12,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve Swagger UI static files
+app.use('/api-docs', express.static(path.join(__dirname, '../node_modules/swagger-ui-express/static')));
+
 // MongoDB connection
 let cachedDb = null;
 const connectToDatabase = async () => {
@@ -37,7 +40,14 @@ const connectToDatabase = async () => {
 // Swagger documentation
 try {
     const swaggerDocument = require('./swagger.json');
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    const swaggerUiOptions = {
+        customCss: '.swagger-ui .topbar { display: none }',
+        customSiteTitle: "AP Vidya Pathshala API Documentation",
+        swaggerOptions: {
+            persistAuthorization: true
+        }
+    };
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerUiOptions));
 } catch (error) {
     console.warn('Swagger documentation not available:', error.message);
     app.get('/api-docs', (req, res) => {
