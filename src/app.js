@@ -12,6 +12,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Connect to MongoDB only once
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) return;
+
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            bufferCommands: false,
+        });
+        isConnected = true;
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('MongoDB connection error:', error);
+        throw error;
+    }
+};
+
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -19,40 +38,59 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/login', authRoutes);
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!', error: err.message });
+// Connect to MongoDB before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        next(error);
+    }
 });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'OK', message: 'API is running' });
+    res.status(200).json({ 
+        status: 'OK', 
+        message: 'API is running',
+        mongodb: isConnected ? 'Connected' : 'Disconnected'
+    });
 });
 
 // Handle root route
 app.get('/', (req, res) => {
     res.json({
         message: 'AP Vidya Pathshala API',
-        documentation: '/api-docs',
-        health: '/api/health'
+        version: '1.0.0',
+        endpoints: {
+            documentation: '/api-docs',
+            health: '/api/health',
+            auth: {
+                student: '/api/login/student',
+                teacher: '/api/login/teacher',
+                headmaster: '/api/login/headmaster',
+                admin: '/api/login/admin'
+            }
+        }
     });
 });
 
-const PORT = process.env.PORT || 5001;
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        message: 'Something went wrong!', 
+        error: err.message 
+    });
+});
 
-// Only listen if not running in Vercel
+// Start server in development
 if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
         console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
     });
 }
 
-// Export for Vercel
 module.exports = app; 
