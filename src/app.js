@@ -19,22 +19,40 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/login', authRoutes);
 
+// Database connection
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
-// Start server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'API is running' });
 });
 
+// Handle root route
+app.get('/', (req, res) => {
+    res.json({
+        message: 'AP Vidya Pathshala API',
+        documentation: '/api-docs',
+        health: '/api/health'
+    });
+});
+
+const PORT = process.env.PORT || 5001;
+
+// Only listen if not running in Vercel
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
+    });
+}
+
+// Export for Vercel
 module.exports = app; 
