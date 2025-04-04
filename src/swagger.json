@@ -1,0 +1,409 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AP Vidya Pathshala API",
+    "description": "API documentation for AP Vidya Pathshala digital learning platform",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/syllabus": {
+      "get": {
+        "summary": "Get all syllabus entries",
+        "tags": ["Syllabus"],
+        "responses": {
+          "200": {
+            "description": "List of all syllabus entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Syllabus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new syllabus chapter",
+        "tags": ["Syllabus"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Syllabus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Syllabus chapter created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/syllabus/grade/{grade}": {
+      "get": {
+        "summary": "Get syllabus by grade",
+        "tags": ["Syllabus"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "grade",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["6", "7", "8", "9", "10"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Syllabus entries for the specified grade"
+          },
+          "404": {
+            "description": "No syllabus found for this grade"
+          }
+        }
+      }
+    },
+    "/api/syllabus/grade/{grade}/semester/{semester}": {
+      "get": {
+        "summary": "Get syllabus by grade and semester",
+        "tags": ["Syllabus"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "grade",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["6", "7", "8", "9", "10"]
+            }
+          },
+          {
+            "in": "path",
+            "name": "semester",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["1", "2"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Syllabus entries for the specified grade and semester"
+          },
+          "404": {
+            "description": "No syllabus found for this grade and semester"
+          }
+        }
+      }
+    },
+    "/api/syllabus/{id}": {
+      "put": {
+        "summary": "Update syllabus chapter",
+        "tags": ["Syllabus"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Syllabus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Syllabus chapter updated successfully"
+          },
+          "404": {
+            "description": "Syllabus chapter not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete syllabus chapter",
+        "tags": ["Syllabus"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Syllabus chapter deleted successfully"
+          },
+          "404": {
+            "description": "Syllabus chapter not found"
+          }
+        }
+      }
+    },
+    "/api/login/student": {
+      "post": {
+        "summary": "Student Login",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "student001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "yourpassword"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/login/teacher": {
+      "post": {
+        "summary": "Teacher Login",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "teacher001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "yourpassword"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/login/headmaster": {
+      "post": {
+        "summary": "Headmaster Login",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "hm001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "yourpassword"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/login/admin": {
+      "post": {
+        "summary": "Admin Login",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "admin001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "yourpassword"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "API health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API is running"
+                    },
+                    "mongodb": {
+                      "type": "string",
+                      "example": "Connected"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Syllabus": {
+        "type": "object",
+        "required": [
+          "grade",
+          "semester",
+          "chapter_number",
+          "chapter_name",
+          "subject",
+          "topics",
+          "learning_objectives",
+          "curriculum_type"
+        ],
+        "properties": {
+          "grade": {
+            "type": "string",
+            "enum": ["6", "7", "8", "9", "10"],
+            "example": "6"
+          },
+          "semester": {
+            "type": "string",
+            "enum": ["1", "2"],
+            "example": "1"
+          },
+          "chapter_number": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1
+          },
+          "chapter_name": {
+            "type": "string",
+            "example": "Introduction to Algebra"
+          },
+          "subject": {
+            "type": "string",
+            "example": "Mathematics"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["Variables", "Constants", "Expressions"]
+          },
+          "learning_objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Understand basic algebraic concepts",
+              "Solve simple equations"
+            ]
+          },
+          "curriculum_type": {
+            "type": "string",
+            "enum": ["AP", "CBSE"],
+            "example": "AP"
+          }
+        }
+      }
+    }
+  }
+} 

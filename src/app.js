@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,19 +12,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB only once
-let isConnected = false;
-const connectDB = async () => {
-    if (isConnected) return;
+// MongoDB connection
+let cachedDb = null;
+const connectToDatabase = async () => {
+    if (cachedDb) {
+        return cachedDb;
+    }
 
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const db = await mongoose.connect(process.env.MONGODB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            bufferCommands: false,
         });
-        isConnected = true;
-        console.log('Connected to MongoDB');
+
+        cachedDb = db;
+        console.log('New database connection established');
+        return db;
     } catch (error) {
         console.error('MongoDB connection error:', error);
         throw error;
@@ -32,29 +35,35 @@ const connectDB = async () => {
 };
 
 // Swagger documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Routes
-const authRoutes = require('./routes/auth.routes');
-app.use('/api/login', authRoutes);
-
-// Connect to MongoDB before handling requests
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
+try {
+    const swaggerDocument = require('./swagger.json');
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} catch (error) {
+    console.warn('Swagger documentation not available:', error.message);
+    app.get('/api-docs', (req, res) => {
+        res.status(404).json({
+            message: 'API documentation not available',
+            error: 'Swagger configuration missing'
+        });
+    });
+}
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-        status: 'OK', 
-        message: 'API is running',
-        mongodb: isConnected ? 'Connected' : 'Disconnected'
-    });
+app.get('/api/health', async (req, res) => {
+    try {
+        const dbConnection = await connectToDatabase();
+        res.status(200).json({ 
+            status: 'OK', 
+            message: 'API is running',
+            mongodb: dbConnection.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            status: 'Error', 
+            message: 'Database connection failed',
+            error: error.message
+        });
+    }
 });
 
 // Handle root route
@@ -70,17 +79,47 @@ app.get('/', (req, res) => {
                 teacher: '/api/login/teacher',
                 headmaster: '/api/login/headmaster',
                 admin: '/api/login/admin'
+            },
+            syllabus: {
+                all: '/api/syllabus',
+                byGrade: '/api/syllabus/grade/:grade',
+                byGradeAndSemester: '/api/syllabus/grade/:grade/semester/:semester'
             }
         }
     });
 });
 
+// Database connection middleware
+app.use(async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Routes
+const authRoutes = require('./routes/auth.routes');
+const syllabusRoutes = require('./routes/syllabus.routes');
+
+app.use('/api/login', authRoutes);
+app.use('/api/syllabus', syllabusRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Error:', err);
     res.status(500).json({ 
         message: 'Something went wrong!', 
         error: err.message 
+    });
+});
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).json({
+        message: 'Route not found',
+        requested_url: req.originalUrl
     });
 });
 
