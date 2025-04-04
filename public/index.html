@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Vidya Pathshala API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .method {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        code {
+            background: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>AP Vidya Pathshala API Documentation</h1>
+    
+    <h2>Authentication Endpoints</h2>
+    
+    <div class="endpoint">
+        <h3>Student Login</h3>
+        <p><span class="method">POST</span> /.netlify/functions/auth/student</p>
+        <pre>{
+  "username": "student001",
+  "password": "yourpassword"
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <h3>Teacher Login</h3>
+        <p><span class="method">POST</span> /.netlify/functions/auth/teacher</p>
+        <pre>{
+  "username": "teacher001",
+  "password": "yourpassword"
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <h3>Headmaster Login</h3>
+        <p><span class="method">POST</span> /.netlify/functions/auth/headmaster</p>
+        <pre>{
+  "username": "hm001",
+  "password": "yourpassword"
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <h3>Admin Login</h3>
+        <p><span class="method">POST</span> /.netlify/functions/auth/admin</p>
+        <pre>{
+  "username": "admin001",
+  "password": "yourpassword"
+}</pre>
+    </div>
+
+    <h2>Response Format</h2>
+    <pre>{
+  "message": "User logged in successfully",
+  "token": "jwt_token_here"
+}</pre>
+</body>
+</html> 
