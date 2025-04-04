@@ -351,6 +351,7 @@
           "semester",
           "chapter_number",
           "chapter_name",
+          "chapter_description",
           "subject",
           "topics",
           "learning_objectives",
@@ -375,6 +376,11 @@
           "chapter_name": {
             "type": "string",
             "example": "Introduction to Algebra"
+          },
+          "chapter_description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "This chapter introduces students to the fundamental concepts of algebra, including variables, constants, and basic algebraic expressions. Students will learn how to represent unknown quantities using variables and perform simple operations with algebraic expressions."
           },
           "subject": {
             "type": "string",

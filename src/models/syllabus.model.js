@@ -21,6 +21,12 @@ const syllabusSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    chapter_description: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 500 // Limiting description to 500 characters
+    },
     subject: {
         type: String,
         required: true,
